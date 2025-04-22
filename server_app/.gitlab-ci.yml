@@ -1,0 +1,23 @@
+# .gitlab-ci.yml
+image: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+
+stages:
+  - build
+  - push
+
+build-image:
+  stage: build
+  script:
+    - docker build -t $IMAGE_NAME .
+
+push-image:
+  stage: push
+  script:
+    - echo "$CI_JOB_TOKEN" | docker login -u gitlab-ci-token --password-stdin $CI_REGISTRY
+    - docker push $IMAGE_NAME
